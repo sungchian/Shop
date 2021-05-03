@@ -1,0 +1,104 @@
+﻿@using Newtonsoft.Json;
+@model Shopee1.Models.ProdMaintain;
+@{
+    ViewData["Title"] = "SHOW";
+    var Tags = JsonConvert.SerializeObject(ViewBag.Tags);
+    var States = JsonConvert.SerializeObject(ViewBag.States);
+    var Triages = JsonConvert.SerializeObject(ViewBag.Triages);
+    var ResponseUnits = JsonConvert.SerializeObject(ViewBag.ResponseUnits);
+    var Reporters = JsonConvert.SerializeObject(ViewBag.Reporters);
+    var ReporterWithEmpInfo = JsonConvert.SerializeObject(ViewBag.UserInfoWithEmpInfoList);
+}
+
+<link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-beta.1/css/select2.min.css" />
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
+<link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+<link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" />
+
+<style>
+    * {
+        font-family: "Comic Sans MS", "微軟正黑體", cursive;
+    }
+    .card-frame {
+        height: auto;
+    }
+
+    .card {
+        position: relative;
+        border: none;
+    }
+
+    .card-name {
+        font-size: 30px;
+        text-align: center;
+    }
+
+    .prod-img {
+        border-radius: 20px;
+        padding: 2px;
+    }
+
+    .fa-star {
+        position: relative;
+        color: orange;
+        left: 80px;
+    }
+
+    .card-intro {
+        height: 100px;
+    }
+
+    .bottom {
+        text-align: center;
+        vertical-align: middle;
+        margin-bottom: 5px;
+    }
+
+    .card-price {
+        position: relative;
+        display: inline-block;
+        font-size: 25px;
+        top: 6px;
+        height: auto;
+        width: 75px;
+        border-radius: 10px;
+        text-align: center;
+    }
+
+        .card-price:before {
+            content: "$ ";
+        }
+
+    .buy {
+        position: relative;
+        margin-left: 30px;
+        display: inline-block;
+    }
+
+</style>
+
+<h2>商品列表</h2>
+<div class="container">
+    <div class="row">
+        <div class="col-lg-3 col-md-4 col-sm-6 card-frame">
+            <div class="card">
+                <img class="prod-img" src="https://cartzilla.createx.studio/img/marketplace/products/01.jpg">
+            </div>
+            <div class="rate">
+                <i class="fa fa-star star1"></i>
+                <i class="fa fa-star star2"></i>
+                <i class="fa fa-star star3"></i>
+                <i class="fa fa-star star4"></i>
+                <i class="fa fa-star star5"></i>
+            </div>
+            <div class="card-name">Iphone </div>
+            <div class="card-intro overflow-auto">This is a very good phone</div>
+            <div class="bottom">
+                <div class="card-price">300</div>
+                <button class="buy btn btn-outline-success">Buy Now!</button>
+            </div>
+        </div>
+    </div>
+</div>

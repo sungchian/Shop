@@ -1,0 +1,589 @@
+﻿@using Newtonsoft.Json;
+@*@using X.PagedList; 
+@using X.PagedList.Mvc.Core; 
+@using X.PagedList.Mvc.Common;
+@using X.PagedList.Web.Common
+@model X.PagedList.IPagedList<Shopee1.Models.ProdMaintain>*@
+@model Shopee1.Models.ProdMaintain;
+@{
+    ViewData["Title"] = "Kelsey's Store";
+    var Category = JsonConvert.SerializeObject(ViewBag.Category);
+    var States = JsonConvert.SerializeObject(ViewBag.States);
+    var Triages = JsonConvert.SerializeObject(ViewBag.Triages);
+    var ResponseUnits = JsonConvert.SerializeObject(ViewBag.ResponseUnits);
+    var Reporters = JsonConvert.SerializeObject(ViewBag.Reporters);
+    var ReporterWithEmpInfo = JsonConvert.SerializeObject(ViewBag.UserInfoWithEmpInfoList);
+}
+
+<link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-beta.1/css/select2.min.css" />
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
+<link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+<link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" />
+
+<style>
+    * {
+        font-family: "Comic Sans MS", "微軟正黑體", cursive;
+    }
+
+    h2 {
+        display: inline-block;
+    }
+
+    .card-frame {
+        height: auto;
+        /*border: solid 1px purple;
+        border-radius: 30px;*/
+        /*margin-right: 5px;*/
+        margin-bottom: 10px;
+    }
+
+    .navbar-nav2 {
+        font-size: 25px;
+        position: absolute;
+        right: 400px;
+        letter-spacing: 15px;
+        display: inline;
+    }
+
+    .card {
+        position: relative;
+        border: solid 2px aliceblue;
+        /*background-color: aliceblue;*/
+        border-radius: 30px;
+    }
+
+    .card-name {
+        font-size: 30px;
+        text-align: center;
+    }
+
+    .imgframe {
+        height: 300px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .prod-img {
+        border-radius: 20px;
+        padding: 2px;
+        /*height: 300px;*/
+        display: flex;
+        max-height: 100%;
+        max-width: 100%;
+        /*height: 200px;*/
+        width: auto;
+        object-fit: cover;
+    }
+
+    .fa-star {
+        position: relative;
+        color: orange;
+        left: 80px;
+    }
+
+    /*.card-intro {
+        height: 100px;
+        font-size: 18px;
+        padding: 10px;
+    }*/
+
+    .bottom {
+        text-align: center;
+        vertical-align: middle;
+        margin: 5px 0px;
+    }
+
+    .card-price {
+        position: relative;
+        display: inline-block;
+        font-size: 25px;
+        top: 6px;
+        height: auto;
+        width: 110px;
+        border-radius: 10px;
+        text-align: center;
+    }
+
+        .card-price:before {
+            content: "$ ";
+        }
+
+    .buy {
+        position: relative;
+        margin-left: 30px;
+        display: inline-block;
+        border: solid 1px #16C60C
+    }
+
+    .removeItem {
+    }
+
+        .removeItem::before {
+            content: "";
+            background-image: url("images/recall.png");
+            width: 10vw;
+            height: 20vh;
+            position: absolute;
+            z-index: 3;
+            background-repeat: no-repeat;
+            background-size: contain;
+            right: 35%;
+        }
+
+    .modal-open {
+        overflow: inherit;
+        padding-right: 0px !important;
+    }
+
+    .modal-header {
+        font-size: 25px;
+    }
+
+    .col-sm {
+        margin-left: 100px;
+    }
+
+    li {
+        cursor: pointer;
+    }
+
+        li:hover {
+            color: darkorange;
+        }
+
+    p {
+        display: inline;
+    }
+
+    .result-text {
+        font-size: 18px;
+    }
+
+    .delCart {
+        margin-left: 3vw;
+        color: darkred;
+    }
+
+        .delCart:hover {
+            background-color: darkred;
+            color: white;
+            border: solid 1px darkred;
+            transition-duration: .5s;
+        }
+
+    .modal-footer {
+        display: flex;
+        align-items: baseline;
+    }
+
+        .modal-footer > p {
+            position: relative;
+            left: -7vw;
+        }
+
+    #total-price {
+        font-size: 20px;
+    }
+
+    .cc {
+        opacity: 0;
+    }
+
+    .checkout {
+        border: solid 1px mediumpurple;
+        border-radius: 20px;
+        background-color: mediumpurple;
+        color: aliceblue;
+        font-size: 20px;
+    }
+
+        .checkout:hover #buttontext {
+            visibility: hidden;
+        }
+
+        .checkout:hover .fa-arrow-circle-right {
+            visibility: hidden;
+        }
+
+        .checkout:hover .cc {
+            color: aliceblue;
+            opacity: 1;
+            position: relative;
+            animation-name: cart;
+            animation-duration: 1s;
+        }
+
+    @@keyframes cart {
+        0% {
+            left: 0;
+        }
+
+        100% {
+            left: 140px;
+        }
+    }
+</style>
+
+
+<div class="container">
+    <div id="displayProduct" class="row">
+    </div>
+    <div>
+        @*@Html.PagedListPager((IPagedList)Model, x => Url.Action("Index", new { page }))*@
+    </div>
+</div>
+
+<!-- Search Modal -->
+<div class="modal right fade" id="searchModal" tabindex="-1" role="dialog" aria-labelledby="insertModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+    @*<div class="modal fixed-right fade show" id="searchModal" tabindex="-1" role="dialog" style="padding-right: 17px;" aria-modal="true" aria-hidden="true">*@
+    <div class="modal-dialog modal-dialog-vertical" role="document" style="position: absolute; right: 0%;">
+        <div class="modal-content">
+            <!--Close-->
+            @*<button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="fa fas fa-times"></i></button>*@
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            <!--Header-->
+            <div class="modal-header">Search Products</div>
+            <!--Body Form-->
+            <div class="modal-body">
+                <form>
+                    <div class="form-group">
+                        @Html.DropDownList("search-category", (IEnumerable<SelectListItem>)ViewBag.Category, new { @class = "form-control" })
+                    </div>
+                    <div class="input-group input-group-merge">
+                        <input id="searchCategoryBtn" class="form-control" type="search" placeholder="Search" style="width: 300px;" />
+                        <div class="input-group-append">
+                            <button id="searchBtn" class="btn btn-outline-border" type="button" onclick="search()"><i class="fa fas fa-search"></i></button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-body">
+                <hr />
+                <!--Heading-->
+                <p>Search Results :</p>
+                <!--Items-->
+                <div id="search-result"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Cart Modal -->
+<div class="modal right fade" id="cartModal" tabindex="-1" role="dialog" aria-labelledby="insertModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+    @*<div class="modal fixed-right fade show" id="searchModal" tabindex="-1" role="dialog" style="padding-right: 17px;" aria-modal="true" aria-hidden="true">*@
+    <div class="modal-dialog modal-dialog-vertical" role="document" style="position: absolute; right: 0%;">
+        <div class="modal-content">
+            <!--Close-->
+            @*<button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="fa fas fa-times"></i></button>*@
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            <!--Header-->
+            <div class="modal-header">Shopping Cart</div>
+            <!--Body Form-->
+            <div class="modal-body">
+                <div id="cart-result"></div>
+            </div>
+            <div class="modal-footer">
+                <p>Subtotal: </p><p id="total-price"></p>
+                <button class="checkout"><i class="fa fas fa-shopping-cart cc"></i><span id="buttontext">CHECK OUT   </span><i class="fa fas fa-arrow-circle-right">&nbsp;&nbsp;&nbsp;&nbsp;</i></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <script type="text/javascript" src="https://unpkg.com/xlsx/dist/xlsx.mini.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-beta.1/js/select2.min.js"></script>
+    <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
+    <script>
+        $(function () {
+            let Category = @Html.Raw(Category);
+            let nowEditId = -1;
+
+            function displayProd() {
+                $('#displayProduct').empty();
+                $.ajax({
+                    url: '@Url.Action("getAllProduct", "Products")',
+                    method: 'GET',
+                    data: {
+                        Id: $('#query-id').val(),
+                        Name: $('#query-name').val(),
+                        description: $('#query-description').val(),
+                        price: $('#query-price').val(),
+                        quantity: $('#query-quantity').val(),
+                        status: $('#query-status').val(),
+                        imgURL: $('#query-imgURL').val(),
+                    },
+                    success: (data) => {
+                        dataList = data;
+
+                        var idNum = 1; //抓取不同欄位id使用
+                        data.forEach((d) => {
+                            if (d.status != 0) {
+                                d.imgURL = "/images/" + d.imgURL;
+                                let template = `
+                                   <div class="col-lg-3 col-md-4 col-sm-6 card-frame">
+                                        <div class="card">
+                                        <div class="imgframe">
+                                            <img id="prod-img${d.id}" class="prod-img" src="${d.imgURL}">
+                                        </div>
+                                        <div class="rate">
+                                            <i class="fa fa-star star1"></i>
+                                            <i class="fa fa-star star2"></i>
+                                            <i class="fa fa-star star3"></i>
+                                            <i class="fa fa-star star4"></i>
+                                            <i class="fa fa-star star5"></i>
+                                        </div>
+                                        <div id="card-name${d.id}" class="card-name">${d.name}</div>
+                                        <div class="bottom">
+                                            <div id="card-categoryId${d.id}" class="card-categoryId" style="display: none">${d.categoryId}</div>
+                                            <div id="card-price${d.id}" class="card-price">${d.price}</div>
+                                            <button class="buy btn btn-outline-success" data-id="${d.id}">Buy Now!</button>
+                                            <button id="${d.id}" class="addcart btn btn-primary">AddCart</button>
+                                        </div>
+                                        </div>
+                                    </div>`
+                                $('#displayProduct').append(template);
+                                idNum++;
+                            }
+
+                        });
+                    },
+                    error: () => {
+
+                    }
+                });
+            };
+
+            $("#display-search").on("click", function () {
+                $("#search-category").val("-9999");
+                $("#searchCategoryBtn").val("");
+                $('#search-result').empty();
+                $("#searchModal").modal("show");
+            });
+
+
+
+            $("#displayProduct").on("click", ".addcart",function () {
+                nowEditId = $(this).attr('id');
+                var i = new Array();
+                $.ajax({
+                    url: '@Url.Action("searchCart", "Display")',
+                    method: 'GET',
+                    data: {
+                        productId: nowEditId
+                    },
+                    success: (data) => {
+                        data.forEach((d) => {
+                            i.push(d.productId);
+                        });
+                        if (i.indexOf(parseInt(nowEditId)) == '-1') {
+                            $.ajax({
+                                url: '@Url.Action("InsertCart", "Display")',
+                                method: 'POST',
+                                data: {
+                                    productId: nowEditId,
+                                    productName: $('#card-name' + nowEditId).html(),
+                                    categoryId: $('#card-categoryId' + nowEditId).html(),
+                                    //categoryName: $('#cart-categoryName').val(),
+                                    quantity: 1,
+                                    price: $('#card-price' + nowEditId).html(),
+                                    imgURL: $('#prod-img' + nowEditId).attr("src").substring(8),
+                                },
+                                success: (data) => {
+                                    toastr.success("已成功加入購物車囉!");
+                                },
+                                error: () => {
+                                    console.log("error");
+                                }
+                            });
+                        }
+                        else {
+                            toastr.warning("商品已經在你的購物車裡面囉!");
+                        }
+                    },
+                    error: () => {
+                        console.log("error");
+                    }
+                });
+
+
+            });
+
+            $("#cart-result").on("click", ".delCart", function () {
+                nowEditId = $(this).attr('data-id');
+                console.log(nowEditId);
+                $.ajax({
+                    url: '@Url.Action("DeleteCart", "Display")',
+                    method: 'POST',
+                    data: {
+                        Id: nowEditId,
+                    },
+                    success: (data) => {
+                        toastr.success("已成功刪除購物車之商品囉!");
+
+                        //尚未完成
+                        $("#cartModal").modal("hide");
+                    },
+                    error: () => {
+                        console.log("error");
+                    }
+                });
+            });
+
+            //cart quantity change事件
+            $("#cart-result").on("change", ".cart-quantity", function () {
+                nowEditId = $(this).attr('data-id');
+                if ($(this).val() <= 0) {
+                    toastr.error("no!!");
+                }
+                else {
+                    $.ajax({
+                        url: '@Url.Action("UpdateCart", "Display")',
+                        method: 'POST',
+                        data: {
+                            Id: nowEditId,
+                            Quantity: $("#cartQ" + nowEditId).val(),
+                        },
+                        success: (data) => {
+                            toastr.warning("已更改到資料庫囉");
+                            console.log("sql update cart");
+                            //這邊其實可以再寫一個ajax就不用刷新整個介面
+                            reflash();
+                        },
+                        error: () => {
+                            toastr.error("錯誤!");
+                        }
+                    });
+                }
+
+            });
+
+            displayProd();
+        });
+
+        function search() {
+            $('#search-result').empty();
+                $.ajax({
+                    url: '@Url.Action("searchByName", "Display")',
+                    method: 'GET',
+                    data: {
+                        categoryId: $("#search-category").val(),
+                        productName: $('#searchCategoryBtn').val(),
+                    },
+                    success: (data) => {
+                        console.log(data);
+                        if (data.length != 0) {
+                            dataList = data;
+                            data.forEach((d) => {
+                                d.imgURL = "/images/" + d.imgURL;
+                                let template = `
+                                   <div class="row">
+                                        <div class="col col-4" style="height: 25vh; width: 25vw; display: flex; align-items: center;"><img src="${d.imgURL}" style="width: 20vh; object-fit: cover;"></div>
+                                        <div class="col col-8" style="line-height: 12.5vh;">
+                                          <div class="col-sm col-4 result-text">${d.name}</div>
+                                          <div class="col-sm col-4">${d.price}</div>
+                                        </div>
+                                   </div>
+                                   <hr />
+                            `
+                                $('#search-result').append(template);
+                            });
+                        }
+                        else {
+                            let template = `<div class="row" style="justify-content: center; padding: 5vh; font-size: 20px;">查無結果   修改查詢條件看看~</div><hr />`
+
+                            $("#search-result").append(template);
+                        }
+
+                    },
+                    error: () => {
+
+                    }
+                });
+        };
+
+        function reflash() {
+                $('#cart-result').empty();
+                $("#total-price").empty();
+                $.ajax({
+                    url: '@Url.Action("searchCart", "Display")',
+                    method: 'GET',
+                    data: {
+                        cartId: $("#cartId").val(),
+                        productId: $('#cart-productId').val(),
+                        productName: $('#cart-productName').val(),
+                        categoryId: $('#cart-categoryId').val(),
+                        categoryName: $('#cart-categoryName').val(),
+                        quantity: $('.cart-quantity').val(),
+                        price: $('#cart-price').val(),
+                        imgURL: $('#cart-imgURL').val(),
+                    },
+                    success: (data) => {
+                        var num = 0;
+                        dataList = data;
+                        if (data.length != 0) {
+                            var totalPrice = 0;
+                            data.forEach((d) => {
+                                d.imgURL = "/images/" + d.imgURL;
+                                let template = `
+                                   <div class="row cartrow${num}">
+                                        <div class="col col-4" style="height: 18vh; width: 18vw; display: flex; align-items: center;"><img src="${d.imgURL}" style="width: 20vh; object-fit: cover;"></div>
+                                        <div class="col col-8" style="line-height: 6vh; display: grid; align-items: center;">
+                                          <div id="cartId" style="display: none">${d.cartId}</div>
+                                          <div class="col-sm col-4 result-text">${d.productName}</div>
+                                          <div class="col-sm col-4">${d.price}</div>
+                                          <div class="col-sm col-4" style="display: flex;">
+                                            <input id="cartQ${d.cartId}" data-id="${d.cartId}" type="number" min="1" class="form-control cart-quantity" value="${d.quantity}" aria-label="Default" style="width: 3vw;">
+                                            <button data-id="${d.cartId}" class="btn btn-sm-danger delCart"><i class="fa fa-trash"></i>Remove</button>
+                                          </div>
+                                        </div>
+                                   </div>
+                                   <hr />
+                                `
+                                //商品被移除，購物車顯示recall
+                                $('#cart-result').append(template);
+                                if (d.onUse == "" || d.status == 0) {
+                                    $(".cartrow" + num).addClass("removeItem");
+                                    $("#cartQ" + d.cartId).val(0);
+                                    $("#cartQ" + d.cartId).attr("disabled", "disabled");
+                                }
+                                totalPrice += parseInt(d.quantity * d.price);
+                                num++;
+                            });
+                            $("#total-price").append(totalPrice);
+                            //數量用select  <- 不好抓數量
+                            //<select id="cart-quantity" class="from-select" aria-label="Default select example" style="width: 2vw; position: relative; left: 40%;">
+                            //    <option selected value="1">${d.quantity}</option>
+                            //    <option value="2">2</option>
+                            //    <option value="3">3</option>
+                            //</select>
+                        }
+                        else {
+                            var totalPrice = 0;
+
+                            let template = `<div class="row" style="justify-content: center; padding: 5vh; font-size: 20px;">購物車目前沒有商品喔!!</div><hr />`
+
+                            $("#cart-result").append(template);
+
+                            $("#total-price").append(totalPrice);
+                        }
+                    },
+                    error: () => {
+
+                    }
+                });
+                $("#cartModal").modal("show");
+        };
+
+
+
+    </script>
+}

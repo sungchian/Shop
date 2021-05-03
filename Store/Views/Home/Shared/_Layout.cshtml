@@ -1,0 +1,315 @@
+﻿<style>
+    body {
+        margin: 0;
+        padding: 0;
+    }
+
+    .navbar {
+        background-image: url(/images/background.jpg);
+    }
+
+    .nav-link {
+        font-size: 20px;
+    }
+
+    .nav-item {
+        position: relative;
+        left: 25vw;
+        margin: 0 10px;
+    }
+
+    ul {
+        list-style: none;
+    }
+
+    a {
+        text-decoration: none;
+    }
+
+    .generic-anchor {
+        color: #8DB9ED;
+    }
+
+        .generic-anchor:visited {
+            color: #8DB9ED;
+        }
+
+        .generic-anchor:hover {
+            color: #ccc;
+        }
+
+    .flex-rw {
+        display: flex;
+        flex-flow: row wrap;
+    }
+
+    footer {
+        background: #373737;
+        margin-top: auto;
+        width: 100%;
+    }
+
+    .footer-list-top {
+        width: 33.333%;
+    }
+
+        .footer-list-top > li {
+            text-align: center;
+            padding-bottom: 10px;
+        }
+
+    .footer-list-header {
+        padding: 10px 0 5px 0;
+        color: #fff;
+        font-size: 2.3vw;
+    }
+
+    .footer-list-anchor {
+        font-size: 1.3em;
+    }
+
+    .footer-social-section {
+        width: 100%;
+        align-items: center;
+        justify-content: space-around;
+        position: relative;
+        margin-top: 5px;
+    }
+
+        .footer-social-section::after {
+            content: "";
+            position: absolute;
+            z-index: 1;
+            top: 50%;
+            left: 10px;
+            border-top: 1px solid #ccc;
+            width: calc(100% - 20px);
+        }
+
+    .footer-social-overlap {
+        position: relative;
+        z-index: 2;
+        background: #373737;
+        padding: 0 20px;
+    }
+
+    .footer-social-connect {
+        display: flex;
+        align-items: center;
+        /*font: 3.5em "Oswald", sans-serif;*/
+        color: #fff;
+    }
+
+    .footer-social-small {
+        font-size: 0.6em;
+        padding: 0px 20px;
+    }
+
+    .footer-social-overlap > a {
+        font-size: 3em;
+    }
+
+        .footer-social-overlap > a:not(:first-child) {
+            margin-left: 0.38em;
+        }
+
+    .footer-bottom-section {
+      width: 100%;
+      padding: 10px;
+      border-top: 1px solid #ccc;
+      margin-top: 10px;
+    }
+
+    .footer-bottom-section > div:first-child {
+      margin-right: auto;
+    }
+
+    .footer-bottom-wrapper {
+      font-size: 1.5em;
+      color: #fff;
+    }
+
+    .footer-address {
+      display: inline;
+      font-style: normal;
+    }
+
+
+</style>
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Shopee1</title>
+
+    <environment include="Development">
+        <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
+        <link rel="stylesheet" href="~/css/site.css" />
+    </environment>
+    <environment exclude="Development">
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"
+              asp-fallback-href="~/lib/bootstrap/dist/css/bootstrap.min.css"
+              asp-fallback-test-class="sr-only" asp-fallback-test-property="position" asp-fallback-test-value="absolute" />
+        <link rel="stylesheet" href="~/css/site.min.css" asp-append-version="true" />
+    </environment>
+</head>
+<body>
+    @*<nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+            <div class="container">
+                <h1 class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index" style="font-size: 58px;">@ViewData["Title"]</h1>
+
+                <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
+                    <ul class="navbar-nav flex-grow-1">
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="ChargeCodeSearch" asp-action="Index">ChargeCodeSearch</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>*@
+
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" style="font-size: 28px;" href="#">@ViewData["Title"]</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+            <div class="navbar-nav">
+                <a class="nav-item nav-link active" href="#">Home <span class="sr-only">(current)</span></a>
+                <a class="nav-item nav-link" href="#">Catalog</a>
+                <a class="nav-item nav-link" href="#">Shop</a>
+                <a class="nav-item nav-link" href="#">Page</a>
+            </div>
+            <div class="navbar-nav" style="margin-left: 300px;">
+                <a id="display-search" class="nav-item nav-link" href="#"><i class="fa fas fa-search"></i> <span class="sr-only">(current)</span></a>
+                <a id="display-user" class="nav-item nav-link" href="#"><i class="fa fas fa-user"></i></a>
+                <a id="display-heart" class="nav-item nav-link" href="#"><i class="fa fas fa-heart"></i></a>
+                <a id="display-cart" class="nav-item nav-link" href="#" onclick="reflash()"><i class="fa fas fa-shopping-cart"></i></a>
+            </div>
+            <div class="navbar-nav" style="margin-left: 50px;">
+                <a id="login-signup" class="nav-item nav-link" href="UserInfo">@ViewData["UserName"]</a>
+            </div>
+        </div>
+    </nav>
+
+    <partial name="_CookieConsentPartial" />
+
+    <div class="container body-content">
+        @RenderBody()
+        <hr />
+        @*<footer>
+            <div class="py-12" style="background-color: gray;">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-lg-12 col-md-3">
+                            <!--Heading-->
+                            <h4 class="mb-6 text-white">Kelsey's.</h4>
+                            <!--Social-->
+                            <ul class="list-group">
+                                <li class="list-group-item"><a href="#"><i class="fa fab fa-facebook"></i></a></li>
+                                <li class="list-group-item"><a href="#"><i class="fa fab fa-instagram"></i></a></li>
+                                <li class="list-group-item"><a href="#"><i class="fa fab fa-youtube"></i></a></li>
+                                <li class="list-group-item"><a href="#"><i class="fa fab fa-twitter"></i></a></li>
+                                <li class="list-group-item"><a href="#"><i class="fa fab fa-linkedin"></i></a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <p>&copy; 2021 - Shopee</p>
+        </footer>*@
+        </div>
+        <footer class="flex-rw">
+
+            <ul class="footer-list-top">
+                <li>
+                    <h4 class="footer-list-header">About Pavilion</h4>
+                </li>
+                <li><a href='/shop/about-mission' class="generic-anchor footer-list-anchor" itemprop="significantLink">GET TO KNOW US</a></li>
+                <li><a href='/promos.html' class="generic-anchor footer-list-anchor" itemprop="significantLink">PROMOS</a></li>
+                <li><a href='/retailers/new-retailers.html' class="generic-anchor footer-list-anchor" itemprop="significantLink">BECOME A RETAILER</a></li>
+
+                <li><a href='/job-openings.html' itemprop="significantLink" class="generic-anchor footer-list-anchor">JOB OPENINGS</a></li>
+
+                <li><a href='/shop/about-show-schedule' class="generic-anchor footer-list-anchor" itemprop="significantLink">EVENTS</a></li>
+            </ul>
+            <ul class="footer-list-top">
+                <li>
+                    <h4 class="footer-list-header">The Gift Selection</h4>
+                </li>
+
+
+                <li><a href='/Angels/cat/id/70' class="generic-anchor footer-list-anchor">ANGEL FIGURINES</a></li>
+                <li><a href='/Home-Decor/cat/id/64' class="generic-anchor footer-list-anchor">HOME DECOR</a></li>
+                <li><a href='/Mugs/cat/id/32' class="generic-anchor footer-list-anchor">MUGS</a></li>
+                <li><a href='/Pet-Lover/cat/id/108' class="generic-anchor footer-list-anchor">PET LOVER</a></li>
+                <li><a href='/Ladies-Accessories/cat/id/117' class="generic-anchor footer-list-anchor" target="_blank">HANDBAGS & JEWELRY</a></li>
+            </ul>
+            <ul class="footer-list-top">
+                <li id='help'>
+                    <h4 class="footer-list-header">Please Help Me</h4>
+                </li>
+                <li><a href='/shop/about-contact' class="generic-anchor footer-list-anchor" itemprop="significantLink">CONTACT</a></li>
+                <li><a href='/faq.html' class="generic-anchor footer-list-anchor" itemprop="significantLink">FAQ</a></li>
+                <li id='find-a-store'><a href='/shop/store-locator' class="generic-anchor footer-list-anchor" itemprop="significantLink">STORE LOCATOR</a></li>
+                <li id='user-registration'><a href='/shop/user-registration?URL=' class="generic-anchor footer-list-anchor" itemprop="significantLink">NEW USERS</a></li>
+                <li id='order-tracking'><a href='/shop/order-status' itemprop="significantLink" class="generic-anchor footer-list-anchor">ORDER STATUS</a></li>
+            </ul>
+            <section class="footer-social-section flex-rw">
+                <span class="footer-social-overlap footer-social-connect">
+                    CONNECT <span class="footer-social-small">with</span> US
+                </span>
+                <span class="footer-social-overlap footer-social-icons-wrapper">
+                    <a href="https://www.pinterest.com/paviliongift/" class="generic-anchor" target="_blank" title="Pinterest" itemprop="significantLink"><i class="fa fa-pinterest"></i></a>
+                    <a href="https://www.facebook.com/paviliongift" class="generic-anchor" target="_blank" title="Facebook" itemprop="significantLink"><i class="fa fa-facebook"></i></a>
+                    <a href="https://twitter.com/PavilionGiftCo" class="generic-anchor" target="_blank" title="Twitter" itemprop="significantLink"><i class="fa fa-twitter"></i></a>
+                    <a href="http://instagram.com/paviliongiftcompany" class="generic-anchor" target="_blank" title="Instagram" itemprop="significantLink"><i class="fa fa-instagram"></i></a>
+                    <a href="https://www.youtube.com/channel/UCYgUODvd0qXbu_LkUWpTVEg" class="generic-anchor" target="_blank" title="Youtube" itemprop="significantLink"><i class="fa fa-youtube"></i></a>
+                    <a href="https://plus.google.com/+Paviliongift/posts" class="generic-anchor" target="_blank" title="Google Plus" itemprop="significantLink"><i class="fa fa-google-plus"></i></a>
+                </span>
+            </section>
+            <section class="footer-bottom-section flex-rw">
+                <div class="footer-bottom-wrapper">
+                    <i class="fa fa-copyright">
+
+                    </i> 2021 Pavilion in <address class="footer-address">Kelsey</address><span class="footer-bottom-rights"> - All Rights Reserved - </span>
+                </div>
+                <div class="footer-bottom-wrapper">
+                    <a href="/terms-of-use.html" class="generic-anchor" rel="nofollow">Terms</a> | <a href="/privacy-policy.html" class="generic-anchor" rel="nofollow">Privacy</a>
+                </div>
+            </section>
+        </footer>
+    
+
+    <environment include="Development">
+        <script src="~/lib/jquery/dist/jquery.js"></script>
+        <script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
+        <script src="~/js/site.js" asp-append-version="true"></script>
+    </environment>
+    <environment exclude="Development">
+        <script src="https://ajax.aspnetcdn.com/ajax/jquery/jquery-3.3.1.min.js"
+                asp-fallback-src="~/lib/jquery/dist/jquery.min.js"
+                asp-fallback-test="window.jQuery"
+                crossorigin="anonymous"
+                integrity="sha384-tsQFqpEReu7ZLhBV2VZlAu7zcOV+rXbYlF2cqB8txI/8aZajjp4Bqd+V6D5IgvKT">
+        </script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"
+                asp-fallback-src="~/lib/bootstrap/dist/js/bootstrap.min.js"
+                asp-fallback-test="window.jQuery && window.jQuery.fn && window.jQuery.fn.modal"
+                crossorigin="anonymous"
+                integrity="sha384-aJ21OjlMXNL5UyIl/XNwTMqvzeRMZH2w8c5cRVpzpU8Y5bApTppSuUkhZXN0VxHd">
+        </script>
+        <script src="~/js/site.min.js" asp-append-version="true"></script>
+    </environment>
+
+    @RenderSection("Scripts", required: false)
+</body>
+</html>

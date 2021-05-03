@@ -1,0 +1,626 @@
+﻿@using Newtonsoft.Json;
+@*@using X.PagedList.Mvc;
+@using X.PagedList;*@
+@model Shopee1.Models.ProdMaintain;
+@{
+    ViewData["Title"] = "Product";
+    var Tags = JsonConvert.SerializeObject(ViewBag.Tags);
+    var States = JsonConvert.SerializeObject(ViewBag.States);
+    var Triages = JsonConvert.SerializeObject(ViewBag.Triages);
+    var ResponseUnits = JsonConvert.SerializeObject(ViewBag.ResponseUnits);
+    var Reporters = JsonConvert.SerializeObject(ViewBag.Reporters);
+    var ReporterWithEmpInfo = JsonConvert.SerializeObject(ViewBag.UserInfoWithEmpInfoList);
+}
+
+<link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-beta.1/css/select2.min.css" />
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
+<link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+<link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" />
+<style>
+    .must-fill {
+        color: red;
+    }
+
+    .modal.show {
+        opacity: 1 !important;
+        transition: opacity .15s linear;
+    }
+
+    .modal-backdrop.show {
+        opacity: 0.4 !important;
+        transition: opacity .15s linear;
+    }
+
+    .modal-dialog {
+        transform: none !important;
+    }
+
+    .modal-row {
+        padding-top: 10px;
+        padding-bottom: 10px;
+    }
+
+    td {
+        word-wrap: break-word;
+        word-break: break-all;
+    }
+
+    .delete-insert-image-tag, .delete-edit-image-tag {
+        color: white !important;
+    }
+
+    .delete-insert-image, .delete-edit-image {
+        margin-left: 5px;
+    }
+
+    .status-on {
+        background-color: green;
+    }
+
+    .status-off {
+        background-color: crimson;
+    }
+
+    #staon, #staoff {
+        width: 55px;
+        text-align: center;
+        justify-content: center;
+    }
+
+    .table>tbody>tr>td {
+        vertical-align: middle;
+    }
+
+    .editBtn {
+        color: forestgreen;
+        border: solid 1px forestgreen;
+        border-radius: 100%;
+        height: 38px;
+    }
+
+        .editBtn:hover {
+            background-color: forestgreen;
+            color: white;
+        }
+
+    .deleteBtn {
+        color: orangered;
+        border: solid 1px orangered;
+        border-radius: 100%;
+        height: 38px;
+    }
+
+        .deleteBtn:hover {
+            background-color: orangered;
+            color: white;
+        }
+</style>
+<h2>商品列表</h2>
+
+<div class="row">
+    <table class="table" id="table">
+        <thead>
+            <tr>
+                <th class="auto-width text-center">
+                    <button type="button" class="btn btn-primary" id="insert-modal-btn"><i class="fa fa-plus"></i> 新增</button>
+                </th>
+                <th class="auto-width text-center">
+                    <label>ID</label>
+                </th>
+                <th class="auto-width text-center">
+                    <label>Name</label>
+                </th>
+                <th class="auto-width text-center" style="width: 30%">
+                    <label>Description</label>
+                </th>
+                <th class="auto-width text-center">
+                    <label>價格</label>
+                </th>
+                <th class="auto-width text-center">
+                    <label>數量</label>
+                </th>
+                <th class="auto-width text-center">
+                    <label>狀態</label>
+                </th>
+            </tr>
+        </thead>
+        <tbody id="prod-query-list-body"></tbody>
+    </table>
+</div>
+
+
+<!-- Edit Modal -->
+<div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog  modal-lg edit-large">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title text-center" id="editModalLabel">Products 編輯</h2>
+            </div>
+            <div class="modal-body">
+                <div class="row modal-row">
+                    <div class="col-md-2">
+                        <label>名稱 <span class="must-fill">*</span></label><br />
+                        @*@Html.DropDownList("edit-name", (IEnumerable<SelectListItem>)ViewBag.Tags, new { @class = "form-control" })*@
+                        <input class="form-control" type="text" id="edit-name" required />
+                    </div>
+                    <div class="col-md-2">
+                        <label>物品類別</label><br />
+                        <input class="form-control" type="text" id="edit-categoryId" />
+                    </div>
+                    <div class="col-md-2">
+                        @*<label>回報者 <span class="must-fill">*</span></label><br />
+                            @Html.DropDownList("edit-reporter", (IEnumerable<SelectListItem>)ViewBag.Reporters, new { @class = "form-control" })*@
+                        <label>價錢 <span class="must-fill">*</span></label><br />
+                        <input class="form-control" type="text" id="edit-price" oninput="value=value.replace(/[^\d]/g,'')" />
+                    </div>
+                    <div class="col-md-3">
+                        <label>發表時間 <span class="must-fill">*</span></label><br />
+                        <input class="form-control" type="text" id="edit-publishDate" disabled="disabled" />
+                    </div>
+                    <div class="col-md-1">
+                        <label>狀態</label><br />
+                        <input class="form-control" type="text" id="edit-status" style="display: none" />
+                        @*<input id="toggle" edit-toggle" type="checkbox" data-toggle="toggle" data-size="small">*@
+                        <button id="staon" class="btn btn-success" style="display: normal">O N</button>
+                        <button id="staoff" class="btn btn-danger" style="display: none">OFF</button>
+                    </div>
+                    <div class="col-md-2">
+                        <label>庫存 <span class="must-fill">*</span></label><br />
+                        <input class="form-control" type="text" id="edit-quantity" oninput="value=value.replace(/[^\d]/g,'')" />
+                    </div>
+                </div>
+                <div class="row modal-row">
+                    <div class="col-md-12">
+                        <label>描述 <span class="must-fill">*</span></label><br />
+                        <input class="form-control" type="text" id="edit-description" />
+                    </div>
+                </div>
+                <div class="row modal-row">
+                        <div class="col-md-12">
+                            <label>附圖</label><br />
+                            <label class="btn btn-primary" style="margin-left: 15px;">
+                                Upload <input type="file" hidden multiple name="upload" id="edit-upload" accept="image/*">
+                            </label><br />
+                            <div id="edit-images" class="col-md-12">
+                            </div>
+                        </div>
+                </div>
+                @*<div class="row modal-row">
+                        <div class="col-md-2">
+                            <label>歷程 <button type="button" class="btn btn-outline-info" id="edit-history-sort"><i class="fa fa-sort-up"></i></button></label>
+                        </div>
+                        <table class="table table-sm" id="edit-history" data-sort="asc" style="border-top: 3px #1F1F1F solid; border-bottom: 3px #1F1F1F solid;">
+                        </table>
+                    </div>*@
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" id="edit-submit">修改</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Insert Modal -->
+<div class="modal fade" id="insertModal" tabindex="-1" role="dialog" aria-labelledby="insertModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title text-center" id="insertModalLabel">新增 Products</h2>
+            </div>
+            <div class="modal-body">
+                <div class="row modal-row">
+                    <div class="col-md-2">
+                        <label>名稱 <span class="must-fill">*</span></label><br />
+                        @*@Html.DropDownList("insert-title", (IEnumerable<SelectListItem>)ViewBag.Tags, new { @class = "form-control" })*@
+                        <input class="form-control" type="text" id="insert-name" required />
+                    </div>
+                    <div class="col-md-2">
+                        <label>物品類別</label><br />
+                        @*@Html.DropDownList("propose-reporter", (IEnumerable<SelectListItem>)ViewBag.Reporters, new { @class = "form-control" })*@
+                        <input class="form-control" type="text" id="insert-categoryId" />
+                    </div>
+                    <div class="col-md-2">
+                        <label>價錢 <span class="must-fill">*</span></label><br />
+                        @*@Html.DropDownList("insert-reporter", (IEnumerable<SelectListItem>)ViewBag.Reporters, new { @class = "form-control" })*@
+                        <input class="form-control" type="text" id="insert-price" oninput="value=value.replace(/[^\d]/g,'')" />
+                    </div>
+                    <div class="col-md-3">
+                        <label>回報時間 <span class="must-fill"></span></label><br />
+                        <input class="form-control" type="text" id="insert-publishDate" disabled="disabled" />
+                    </div>
+                    <div class="col-md-1">
+                        <label>狀態 <span class="must-fill"></span></label><br />
+                        <input class="form-control" type="text" id="insert-status" style="display: none" />
+                        <button id="insert-staon" class="btn btn-success" style="display: normal">O N</button>
+                        <button id="insert-staoff" class="btn btn-danger" style="display: none">OFF</button>
+                    </div>
+                    <div class="col-md-2">
+                        <label>庫存 <span class="must-fill">*</span></label><br />
+                        <input class="form-control" type="text" id="insert-quantity" oninput="value=value.replace(/[^\d]/g,'')" />
+                    </div>
+                </div>
+                <div class="row modal-row">
+                    <div class="col-md-12">
+                        <label>描述</label><br />
+                        <input class="form-control" type="text" placeholder="請輸入Description" id="insert-description">
+                    </div>
+                </div>
+                <div class="row modal-row">
+                    <div class="col-md-12">
+                        <label>Image</label><br />
+                        <label class="btn btn-primary" style="margin-left: 15px;">
+                            Upload <input type="file" hidden multiple name="upload" id="insert-upload" accept="image/*">
+                        </label><br />
+                        <div id="insert-images" class="col-md-12">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" id="insert-submit">新增</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+@section Scripts{
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+    <script type="text/javascript" src="https://unpkg.com/xlsx/dist/xlsx.mini.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-beta.1/js/select2.min.js"></script>
+    @*<script src="https://cdn.jsdelivr.net/npm/vue@2.6.12"></script>*@
+    <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
+    <script>
+        $(function () {
+            let nowEditId = -1;
+            let old_description = '';
+            let old_name = '';
+            //let edit_change_image = false;
+            let old_price = '';
+            let old_categoryId = '';
+            let old_publishDate = '';
+            let old_status = '';
+            let old_imgURL = '';
+            let old_quantity = '';
+            //載入列表
+            function updateList() {
+                $('#prod-query-list-body').empty();
+                $.ajax({
+                    url: '@Url.Action("getAllProduct", "Products")',
+                    method: 'GET',
+                    data: {
+                        Id: $('#query-id').val(),
+                        Name: $('#query-name').val(),
+                        description: $('#query-description').val(),
+                        price: $('#query-price').val(),
+                        quantity: $('#query-quantity').val(),
+                        status: $('#query-status').val(),
+                    },
+                    success: (data) => {
+                        dataList = data;
+                        var idNum = 1; //抓取不同欄位id使用
+                        data.forEach((d) => {
+                            let template = `
+                                    <tr>
+                                    <td class="auto-width text-center">
+                                    <button class="btn skh-btn-sm editBtn" type="button" data-id="${d.id}"><i class="fa fa-pencil"></i></button>
+                                    <button class="btn skh-btn-sm-danger deleteBtn" type="button" data-id="${d.id}"><i class="fa fa-trash"></i></button>
+                                    </td>
+                                    <td class="auto-width text-center">${d.id}</td>
+                                    <td class="auto-width text-center">${d.name}</td>
+                                    <td class="auto-width text-center" style="width: 30%">${d.description}</td>
+                                    <td class="auto-width text-center">${d.price}</td>
+                                    <td class="auto-width text-center">${d.quantity}</td>
+                                    <td class="auto-width text-center">
+                                        <span id="setIsEnable`+ idNum +`" style="display: none;">${d.status}</span>
+                                        <lebel id="setlb_Enable`+ idNum +`" class="badge badge-pill badge-success status-on isEnableLable"  >啟用</lebel>
+                                        <lebel id="setlb_InEnable`+ idNum +`" class="badge badge-pill badge-danger status-off isEnableLable" style="display: none;">停用</lebel>
+                                    </td>
+                                </tr>
+                            `
+                            $('#prod-query-list-body').append(template);
+
+                            if ($('#setIsEnable' + idNum).html() == "1")
+                            {
+                                $('#setlb_Enable' + idNum).show();
+                                $('#setlb_InEnable' + idNum).hide();
+                            }
+                            else
+                            {
+                                $('#setlb_Enable' + idNum).hide();
+                                $('#setlb_InEnable' + idNum).show();
+                            }
+
+                            idNum++;
+                        });
+                    },
+                    error: () => {
+
+                    }
+                });
+            }
+            //載入編輯頁面
+            $("#prod-query-list-body").on('click', ".editBtn", function () {
+                nowEditId = $(this).attr('data-id');
+                console.log(nowEditId);
+                //edit_change_image = false;
+                $.ajax({
+                    url: '@Url.Action("QueryProdById", "Products")',
+                    method: 'GET',
+                    data: {
+                        Id: $(this).attr('data-id')
+                    },
+                    success: (data) => {
+                        console.log(data);
+                        $("#edit-name").val(data.name);
+                        $('#edit-description').val(data.description);
+                        $("#edit-categoryId").val(data.categoryId);
+                        $('#edit-price').val(data.price);
+                        $('#edit-publishDate').val(data.publishDate);
+                        $("#edit-status").val(data.status);
+                        $("#edit-imgURL").val(data.imgURL);
+                        $("#edit-quantity").val(data.quantity);
+                        old_name = data.name;
+                        old_description = data.description;
+                        old_categoryId = data.categoryId;
+                        old_price = data.price;
+                        old_publishDate = data.publishDate;
+                        old_status = data.status;
+                        old_imgURL = data.imgURL;
+                        old_quantity = data.quantity;
+                        //toggle 顯示
+                        if (data.status == "1")
+                        {
+                            //$('#toggle').attr("checked");
+                            $("#staon").show();
+                            $("#staoff").hide();
+                        }
+                        else
+                        {
+                            //$('.edit-toggle').removeAttr("checked");
+                            $("#staon").hide();
+                            $("#staoff").show();
+                        }
+
+                        //button 判斷
+                        $("#staon").on("click", function () {
+                            $("#edit-status").val(0);
+                            $("#staon").hide();
+                            $("#staoff").show();
+                        });
+
+                        $("#staoff").on("click", function () {
+                            $("#edit-status").val(1);
+                            $("#staon").show();
+                            $("#staoff").hide();
+                        });
+
+                        //let latest = data.detailList.filter(x => x.isLatest == 1)[0];
+
+                        //關於URL轉換方法
+                        if (data.imgURL != "/images/no.jpg" || data.imgURL.trim() != "") {
+                            data.imgURL.split(";").forEach((filename) => {
+                                if (filename.trim() == "") {
+                                    return;
+                                }
+                                let template = `
+                                <a class="btn btn-primary delete-insert-image-tag">${filename}<span class="badge badge-pill badge-light delete-edit-image" data-id="${filename}"><i class="fa fa-times "></i></span></a>
+                                `
+                                $('#edit-images').append(template);
+                            });
+                            edit_images = data.imgURL.split(";");
+                        } else {
+                            edit_images = [];
+                        } 
+
+                        //$('#edit-history > tbody').empty();
+                        //data.detailList.forEach(v => {
+                            //let state = States.filter(x => x.Value == v.statusCode)[0].Text;
+                            //let triage = Triages.filter(x => x.Value == v.triageCode)[0].Text;
+
+                            //var modifyEmpName = ReporterMappingEmpIdToNoName.hasOwnProperty(v.modifyEmpId) ? ReporterMappingEmpIdToNoName[v.modifyEmpId] : "無";
+                            /*
+                            if (v.ModifyEmpId != 0 || v.ModifyEmpId != undefined) {
+                                console.log(ReporterWithMoreInfo, v.ModifyEmpId);
+                                modifyEmpName = ReporterWithMoreInfo.filter(x => x.EmpId == v.ModifyEmpId)[0].EmpName;
+                            }
+                            */
+                            // 移除沒選到的
+                            //state = state.replace("請選擇", "");
+                            //triage = triage.replace("請選擇", "");
+
+                            //let template = `
+                            //    <tr>
+                            //        <td class="auto-width text-center">${state}</td>
+                            //        <td class="auto-width text-center">${triage}</td>
+                            //        <td class="auto-width">${v.remark}</td>
+                            //        <td class="auto-width text-center">${modifyEmpName}</td>
+                            //        <td class="auto-width text-center">${v.modifyTime}</td>
+                            //    </tr>
+                            //`
+
+                            //$('#edit-history > tbody').append(template);
+                        //});
+
+                        $("#editModal").modal("show");
+                    },
+                    error: (data) => {
+                        //toastr.error('錯誤', data);
+                        updateList();
+                    }
+                });
+            });
+
+            //新增功能
+            $("#insert-modal-btn").on('click', function () {
+                insert_images = [];
+                $('#insert-images').empty();
+                $("#insert-name").val("");
+                $("#insert-categoryId").val("");
+                $("#insert-price").val("");
+                $("#insert-quantity").val("");
+                $("#insert-description").val("");
+                $("#insert-status").val(1);
+                $("#insertModal").modal('show');
+                //var reporter = new URL(location.href).searchParams.get("user");
+                //$('#insert-reporter').val(reporter);
+                var d = new Date();
+                var month = d.getMonth() + 1;
+                var day = d.getDate();
+                var hour = d.getHours();
+                var min = d.getMinutes();
+                var sec = d.getSeconds();
+                var output = d.getFullYear() + '/' +
+                    (month < 10 ? '0' : '') + month + '/' +
+                    (day < 10 ? '0' : '') + day + ' ' +
+                    (hour > 12 ? '下午 ' : '上午 ') + (hour < 10 ? '0' : '') + hour + ':' +
+                    (min < 10 ? '0' : '') + min
+                    //+ ':' + (sec < 10 ? '0' : '') + sec
+                    ;
+
+                //button 判斷
+                $("#insert-staon").on("click", function () {
+                    $("#insert-status").val(0);
+                    $("#insert-staon").hide();
+                    $("#insert-staoff").show();
+                });
+
+                $("#insert-staoff").on("click", function () {
+                    $("#insert-status").val(1);
+                    $("#insert-staon").show();
+                    $("#insert-staoff").hide();
+                });
+
+                $('#insert-publishDate').val(output);
+                console.log($('#insert-publishDate').val());
+            });
+
+            $('#insert-submit').on('click', function () {
+                if ($('#insert-name').val().trim() == "" || $('#insert-price').val().trim() == "" || $('#insert-quantity').val().trim() == "") {
+                    toastr.error("請填寫所有必填欄位");
+                    return;
+                }
+                $.ajax({
+                    url: '@Url.Action("InsertProd", "Products")',
+                    method: 'POST',
+                    data: {
+                        name: $('#insert-name').val(),
+                        description: $('#insert-description').val(),
+                        categoryId: $('#insert-categoryId').val(),
+                        price: $('#insert-price').val(),
+                        publishDate: $('#insert-publishDate').val(),
+                        status: $('#insert-status').val(),
+                        imgURL: insert_images.length > 0 ? insert_images.join(";") : " ",
+                        quantity: $('#insert-quantity').val(),
+                    },
+                    success: (data) => {
+                        $('#insertModal').modal("hide");
+                        toastr.success("完成");
+                        $('#insertModal input, #insertModal select, #insertModal textarea').val('');
+                        updateList();
+                    },
+                    error: (data) => {
+                        toastr.error('錯誤', data2);
+                        console.log(data);
+                    }
+                })
+            });
+
+            //刪除功能
+            $("#prod-query-list-body").on('click', ".deleteBtn", function () {
+                $.ajax({
+                    url: '@Url.Action("DeleteProd", "Products")',
+                    method: 'GET',
+                    data: {
+                        Id: $(this).attr('data-id')
+                    },
+                    success: function (data) {
+                       toastr.success('刪除完成');
+                        updateList();
+                    },
+                    error: function (data) {
+                       toastr.error('錯誤', data);
+                        updateList();
+                    }
+                });
+            });
+
+            //編輯功能
+            $("#edit-submit").on('click', function () {
+                if ($('#edit-name').val().trim() == "" || $('#edit-price').val().trim() == "" || $('#edit-quantity').val().trim() == "") {
+                    toastr.error("請填寫所有必填欄位");
+                    return;
+                }
+                if ($('#edit-description').val() != old_description || $('#edit-name').val() != old_name || $('#edit-categoryId').val() != old_categoryId || $('#edit-price') != old_price || $('#edit-status') != old_status || $('#edit-quantity') != old_quantity) {
+                    $.ajax({
+                        url: '@Url.Action("UpdateProd", "Products")',
+                        method: 'POST',
+                        data: {
+                            Id: nowEditId,
+                            description: $('#edit-description').val(),
+                            name: $('#edit-name').val(),
+                            categoryId: $('#edit-categoryId').val(),
+                            price: $('#edit-price').val(),
+                            publishDate: $('#edit-publishDate').val(),
+                            status: $('#edit-status').val(),
+                            ImgUrl: " ",
+                            quantity: $('#edit-quantity').val(),
+                        },
+                        success: (data) => {
+                            toastr.success('編輯完成');
+                            updateList();
+
+                        },
+                        error: (data) => {
+                            toastr.error('錯誤', data);
+                        }
+                    });
+                }
+                $("#editModal").modal("hide");
+            });
+
+            /* 上傳檔案 */
+            $("#insert-upload").on('change', function () {
+                var fd = new FormData();
+                for (let i = 0; i < $('#insert-upload')[0].files.length; i++) {
+                    fd.append('upload', $('#insert-upload')[0].files[i])
+                }
+                $.ajax({
+                    url: '@Url.Action("UploadImages", "Products")',
+                    type: 'POST',
+                    data: fd,
+                    contentType: false,
+                    processData: false,
+                    success: (data) => {
+                        console.log(data);
+                        if (data.isOk) {
+                            data.fileNames.forEach((filename) => {
+                                filename = filename.split("\\")[filename.split("\\").length - 1];
+                                let template = `
+                                    <a class="btn btn-primary delete-insert-image-tag">${filename}<span class="badge badge-pill badge-light delete-insert-image" data-id="${filename}"><i class="fa fa-times "></i></span></a>
+                                 `
+                                insert_images.push(filename);
+                                $('#insert-images').append(template);
+                            });
+                        }
+                        console.log(insert_images);
+                        $("#insert-upload").val(null);
+                    },
+                    error: (data) => {
+                        toastr.error('錯誤', data);
+                    }
+                });
+            });
+
+            //首次載入列表
+            updateList();
+        });
+    </script>
+}
+
