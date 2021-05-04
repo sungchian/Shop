@@ -1,10 +1,10 @@
 ﻿@using Newtonsoft.Json;
-@*@using X.PagedList; 
-@using X.PagedList.Mvc.Core; 
+@using X.PagedList;
+@using X.PagedList.Mvc.Core;
 @using X.PagedList.Mvc.Common;
-@using X.PagedList.Web.Common
-@model X.PagedList.IPagedList<Shopee1.Models.ProdMaintain>*@
+@using X.PagedList.Web.Common;
 @model Shopee1.Models.ProdMaintain;
+
 @{
     ViewData["Title"] = "Kelsey's Store";
     var Category = JsonConvert.SerializeObject(ViewBag.Category);
@@ -232,6 +232,7 @@
     <div id="displayProduct" class="row">
     </div>
     <div>
+        @*@Html.PagedListPager((IPagedList)Model, x => Url.Action("Index", new { pageIndex = x }))*@
         @*@Html.PagedListPager((IPagedList)Model, x => Url.Action("Index", new { page }))*@
     </div>
 </div>
@@ -252,7 +253,14 @@
             <div class="modal-body">
                 <form>
                     <div class="form-group">
-                        @Html.DropDownList("search-category", (IEnumerable<SelectListItem>)ViewBag.Category, new { @class = "form-control" })
+                        @*@Html.DropDownList("search-category", (IEnumerable<SelectListItem>)ViewBag.Category, new { @class = "form-control" })*@
+                        <select id="tttt" class="form-control"></select>
+                    </div>
+                    <h2>dadsadasdasds</h2>
+                    <div class="form-group">
+                        <select id="tttt" class="form-control"></select>
+                    </div>
+                    <div class="form-group"><h2>456465465</h2>
                     </div>
                     <div class="input-group input-group-merge">
                         <input id="searchCategoryBtn" class="form-control" type="search" placeholder="Search" style="width: 300px;" />
@@ -302,9 +310,10 @@
     <script type="text/javascript" src="https://unpkg.com/xlsx/dist/xlsx.mini.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-beta.1/js/select2.min.js"></script>
     <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
+    <script src="https://pagination.js.org/dist/2.1.5/pagination.min.js"></script>
     <script>
         $(function () {
-            let Category = @Html.Raw(Category);
+            @*let Category = @Html.Raw(Category);*@
             let nowEditId = -1;
 
             function displayProd() {
@@ -364,11 +373,31 @@
 
             $("#display-search").on("click", function () {
                 $("#search-category").val("-9999");
+                $("#tttt").val("-9999");
                 $("#searchCategoryBtn").val("");
                 $('#search-result').empty();
                 $("#searchModal").modal("show");
+                select();
             });
 
+
+            function select() {
+                $.ajax({
+                    url: '@Url.Action("getAllCategory", "Display")',
+                    method: 'GET',
+                    data: {
+                        
+                    },
+                    success: function (data) {
+                        $("#tttt").append("<option value='-9999'>--请选择--</option>");
+                        //遍历 json为{id:"00",text:"aa".....},{id:"01",text:"bb".....}
+                        dataList = data;
+                        data.forEach((d) => {
+                            $("#tttt").append("<option value='" + d.categoryId + "'>" + d.categoryName + "</option>");
+                        })
+                    },
+                })
+            }
 
 
             $("#displayProduct").on("click", ".addcart",function () {
@@ -467,6 +496,7 @@
             });
 
             displayProd();
+            select();
         });
 
         function search() {

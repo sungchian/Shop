@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-
+using X.PagedList.Mvc.Core;
+using X.PagedList;
 namespace Shopee1.Models
 {
     public class ProdMaintain
@@ -16,6 +17,6 @@ namespace Shopee1.Models
         public string Status { get; set; }
         public string ImgURL { get; set; }
         public string Quantity { get; set; }
-
+        public IPagedList<ProdMaintain> Product { set; get; }
     }
 }

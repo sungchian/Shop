@@ -12,15 +12,15 @@ using System.Data.SqlClient;
 using System.IO;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Newtonsoft.Json;
-//using X.PagedList;
-//using X.PagedList.Mvc.Common;
-//using X.PagedList.Mvc.Core;
+using X.PagedList;
+using X.PagedList.Mvc.Common;
+using X.PagedList.Mvc.Core;
 
 namespace Shopee1.Controllers
 {
     public class DisplayController : Controller
     {
-        public IActionResult Index(int page = 1, int sizePage = 8)
+        public IActionResult Index(int pageIndex = 1, int sizePage = 8)
         {
             List<ProdMaintain> parts = new List<ProdMaintain>();
 
