@@ -503,6 +503,30 @@
                 });
             });
 
+            //新增頁面刪除檔案
+            $("#insert-images").on("click", ".delete-insert-image-tag", function () {
+                var nowId = $(this).attr("id");
+                console.log(nowId);
+                $("#insert-images").empty();
+                let temp = insert_images;
+                insert_images.splice(nowId, 1);
+                console.log(temp);
+                insert_images = [];
+                countId = 0;
+                temp.forEach((element) => {
+                    if (!$("a.delete-insert-image").text().includes(element)) {
+                        console.log(element);
+                        let template = `
+                        <a id="${nowId}" class="btn btn-primary delete-insert-image-tag">${element}<span class="badge badge-pill badge-light delete-edit-image" data-id="${element}"><i class="fa fa-times "></i></span></a>
+                    `
+                        $('#insert-images').append(template);
+                        insert_images.push(element);
+                        countId++;
+                    }
+                })
+            });
+
+            //編輯頁面刪除檔案
             $("#edit-images").on("click", ".delete-insert-image-tag", function () {
                 var nowId = $(this).attr("id");
                 $("#edit-images").empty();
@@ -512,7 +536,6 @@
                 edit_images = [];
                 countId = 0;
                 temp.forEach((element) => {
-                    //var fileName = element.split("\\")[2];
                     if (!$("a.delete-insert-image").text().includes(element)) {
                         console.log(element);
                         let template = `
@@ -523,7 +546,6 @@
                         countId++;
                     }
                 })
-                console.log("asdadsadasd");
             });
 
             //新增功能
@@ -675,13 +697,15 @@
                     success: (data) => {
                         console.log(data);
                         if (data.isOk) {
+                            nowId = 0;
                             data.fileNames.forEach((filename) => {
                                 filename = filename.split("\\")[filename.split("\\").length - 1];
                                 let template = `
-                                    <a class="btn btn-primary delete-insert-image-tag">${filename}<span class="badge badge-pill badge-light delete-insert-image" data-id="${filename}"><i class="fa fa-times "></i></span></a>
+                                    <a id="${nowId}" class="btn btn-primary delete-insert-image-tag">${filename}<span class="badge badge-pill badge-light delete-insert-image" data-id="${filename}"><i class="fa fa-times "></i></span></a>
                                  `
                                 insert_images.push(filename);
                                 $('#insert-images').append(template);
+                                nowId++;
                             });
                         }
                         console.log(insert_images);
@@ -722,43 +746,6 @@
                     }
                 });
             });
-
-        
-
-            //新增頁面的檔案移除
-            function removeInsertFile(data) {
-                $("#insert-images").empty();
-                let temp = insertFile;
-                insertFile = [];
-                temp.forEach((element) => {
-                    //var fileName = element.split("\\")[2];
-                    if (!data.includes(element)) {
-                        let template = `
-                        <a class="btn btn-primary delete-insert-image-tag">${element}<span class="badge badge-pill badge-light delete-insert-image" data-id="${element}"><i class="fa fa-times "></i></span></a>
-                    `
-                        $('#insert-images').append(template);
-                        insertFile.push(element);
-                    }
-
-                })
-            }
-            //編輯頁面的檔案移除
-            function removeEditFile(data) {
-                debugger
-                $("#edit-images").empty();
-                let temp = edit_images;
-                edit_images = [];
-                temp.forEach((element) => {
-                    //var fileName = element.split("\\")[2];
-                    if (!data.includes(element)) {
-                        let template = `
-                        <a class="btn btn-primary delete-edit-image-tag">${element}<span class="badge badge-pill badge-light delete-edit-image" data-id="${element}"><i class="fa fa-times "></i></span></a>
-                    `
-                        $('#edit-images').append(template);
-                        edit_images.push(element);
-                    }
-                })
-            }
 
             //首次載入列表
             updateList();
