@@ -1,10 +1,5 @@
 ﻿@using Newtonsoft.Json;
-@*@using X.PagedList; @*import this so we can cast our list to IPagedList (only necessary because ViewBag is dynamic)*@
-@*@using X.PagedList.Mvc.Core;*@ @*import this so we get our HTML Helper*@
-@*@using X.PagedList.Mvc.Common;
-@using X.PagedList.Web.Common
-@model X.PagedList.IPagedList<Shopee1.Models.ProdMaintain>*@
-@model Shopee1.Models.ProdMaintain;
+@model IEnumerable<Shopee1.Models.ProdMaintain>;
 @{
     ViewData["Title"] = "Kelsey's Store";
     var Category = JsonConvert.SerializeObject(ViewBag.Category);
@@ -230,9 +225,6 @@
 
 <div class="container">
     <div id="displayProduct" class="row">
-    </div>
-    <div>
-        @*@Html.PagedListPager((IPagedList)Model, x => Url.Action("Index", new { page }))*@
     </div>
 </div>
 

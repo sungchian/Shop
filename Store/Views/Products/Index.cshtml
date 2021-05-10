@@ -1,7 +1,9 @@
 ﻿@using Newtonsoft.Json;
-@*@using X.PagedList.Mvc;
-@using X.PagedList;*@
-@model Shopee1.Models.ProdMaintain;
+@using X.PagedList;
+@using X.PagedList.Mvc.Core;
+@using X.PagedList.Mvc.Common;
+@using X.PagedList.Web.Common
+@model IEnumerable<Shopee1.Models.ProdMaintain>;
 @{
     ViewData["Title"] = "Product";
     var Tags = JsonConvert.SerializeObject(ViewBag.Tags);
@@ -69,7 +71,7 @@
         justify-content: center;
     }
 
-    .table>tbody>tr>td {
+    .table > tbody > tr > td {
         vertical-align: middle;
     }
 
@@ -126,7 +128,31 @@
                 </th>
             </tr>
         </thead>
-        <tbody id="prod-query-list-body"></tbody>
+        <tbody id="prod-query-list-body">
+            @{var idNum = 0; }
+            @foreach (ProdMaintain p in Model)
+            {
+
+                <tr>
+                    <td class="auto-width text-center">
+                        <button class="btn skh-btn-sm editBtn" type="button" data-id="@p.Id"><i class="fa fa-pencil"></i></button>
+                        <button class="btn skh-btn-sm-danger deleteBtn" type="button" data-id="@p.Id"><i class="fa fa-trash"></i></button>
+                    </td>
+                    <td class="auto-width text-center">@p.Id</td>
+                    <td class="auto-width text-center">@p.Name</td>
+                    <td class="auto-width text-center" style="width: 30%">@p.Description</td>
+                    <td class="auto-width text-center">@p.Price</td>
+                    <td class="auto-width text-center">@p.Quantity</td>
+                    <td class="auto-width text-center">
+                        <span id="setIsEnable_@idNum" style="display: none;">@p.Status</span>
+                        <lebel id="setlb_Enable_@idNum" class="badge badge-pill badge-success status-on isEnableLable">啟用</lebel>
+                        <lebel id="setlb_InEnable_@idNum" class="badge badge-pill badge-danger status-off isEnableLable" style="display: none;">停用</lebel>
+                    </td>
+                </tr>
+                idNum = idNum + 1;
+            }
+        </tbody>
+        @Html.PagedListPager((IPagedList)Model, page => Url.Action("Index", new { page }))
     </table>
 </div>
 
@@ -178,14 +204,14 @@
                     </div>
                 </div>
                 <div class="row modal-row">
-                        <div class="col-md-12">
-                            <label>附圖</label><br />
-                            <label class="btn btn-primary" style="margin-left: 15px;">
-                                Upload <input type="file" hidden multiple name="upload" id="edit-upload" accept="image/*">
-                            </label><br />
-                            <div id="edit-images" class="col-md-12">
-                            </div>
+                    <div class="col-md-12">
+                        <label>附圖</label><br />
+                        <label class="btn btn-primary" style="margin-left: 15px;">
+                            Upload <input type="file" hidden multiple name="upload" id="edit-upload" accept="image/*">
+                        </label><br />
+                        <div id="edit-images" class="col-md-12">
                         </div>
+                    </div>
                 </div>
                 @*<div class="row modal-row">
                         <div class="col-md-2">
@@ -288,53 +314,63 @@
             let old_status = '';
             let old_imgURL = '';
             let old_quantity = '';
+            var insertFile = [];
+            var editFile = [];
+            var insertOriginType = '';
+            var editOriginType = '';
+            //function updateList() {
+            //    for (var idNum = 0; idNum < )
+            //    if ($('#setIsEnable_' + idNum).html() == "1") {
+            //        $('#setlb_Enable_' + idNum).show();
+            //        $('#setlb_InEnable_' + idNum).hide();
+            //    }
+            //    else {
+            //        $('#setlb_Enable_' + idNum).hide();
+            //        $('#setlb_InEnable_' + idNum).show();
+            //    }
+            //}
             //載入列表
             function updateList() {
-                $('#prod-query-list-body').empty();
+                //$('#prod-query-list-body').empty();
                 $.ajax({
                     url: '@Url.Action("getAllProduct", "Products")',
                     method: 'GET',
                     data: {
-                        Id: $('#query-id').val(),
-                        Name: $('#query-name').val(),
-                        description: $('#query-description').val(),
-                        price: $('#query-price').val(),
-                        quantity: $('#query-quantity').val(),
-                        status: $('#query-status').val(),
                     },
                     success: (data) => {
                         dataList = data;
-                        var idNum = 1; //抓取不同欄位id使用
+                        console.log("das");
+                        var idNum = 0; //抓取不同欄位id使用
                         data.forEach((d) => {
-                            let template = `
-                                    <tr>
-                                    <td class="auto-width text-center">
-                                    <button class="btn skh-btn-sm editBtn" type="button" data-id="${d.id}"><i class="fa fa-pencil"></i></button>
-                                    <button class="btn skh-btn-sm-danger deleteBtn" type="button" data-id="${d.id}"><i class="fa fa-trash"></i></button>
-                                    </td>
-                                    <td class="auto-width text-center">${d.id}</td>
-                                    <td class="auto-width text-center">${d.name}</td>
-                                    <td class="auto-width text-center" style="width: 30%">${d.description}</td>
-                                    <td class="auto-width text-center">${d.price}</td>
-                                    <td class="auto-width text-center">${d.quantity}</td>
-                                    <td class="auto-width text-center">
-                                        <span id="setIsEnable`+ idNum +`" style="display: none;">${d.status}</span>
-                                        <lebel id="setlb_Enable`+ idNum +`" class="badge badge-pill badge-success status-on isEnableLable"  >啟用</lebel>
-                                        <lebel id="setlb_InEnable`+ idNum +`" class="badge badge-pill badge-danger status-off isEnableLable" style="display: none;">停用</lebel>
-                                    </td>
-                                </tr>
-                            `
-                            $('#prod-query-list-body').append(template);
+                            //let template = `
+                            //        <tr>
+                            //        <td class="auto-width text-center">
+                            //        <button class="btn skh-btn-sm editBtn" type="button" data-id="${d.id}"><i class="fa fa-pencil"></i></button>
+                            //        <button class="btn skh-btn-sm-danger deleteBtn" type="button" data-id="${d.id}"><i class="fa fa-trash"></i></button>
+                            //        </td>
+                            //        <td class="auto-width text-center">${d.id}</td>
+                            //        <td class="auto-width text-center">${d.name}</td>
+                            //        <td class="auto-width text-center" style="width: 30%">${d.description}</td>
+                            //        <td class="auto-width text-center">${d.price}</td>
+                            //        <td class="auto-width text-center">${d.quantity}</td>
+                            //        <td class="auto-width text-center">
+                            //            <span id="setIsEnable`+ idNum +`" style="display: none;">${d.status}</span>
+                            //            <lebel id="setlb_Enable`+ idNum +`" class="badge badge-pill badge-success status-on isEnableLable"  >啟用</lebel>
+                            //            <lebel id="setlb_InEnable`+ idNum +`" class="badge badge-pill badge-danger status-off isEnableLable" style="display: none;">停用</lebel>
+                            //        </td>
+                            //    </tr>
+                            //`
+                            //$('#prod-query-list-body').append(template);
 
-                            if ($('#setIsEnable' + idNum).html() == "1")
+                            if ($('#setIsEnable_' + idNum).html() == "1")
                             {
-                                $('#setlb_Enable' + idNum).show();
-                                $('#setlb_InEnable' + idNum).hide();
+                                $('#setlb_Enable_' + idNum).show();
+                                $('#setlb_InEnable_' + idNum).hide();
                             }
                             else
                             {
-                                $('#setlb_Enable' + idNum).hide();
-                                $('#setlb_InEnable' + idNum).show();
+                                $('#setlb_Enable_' + idNum).hide();
+                                $('#setlb_InEnable_' + idNum).show();
                             }
 
                             idNum++;
@@ -348,6 +384,7 @@
             //載入編輯頁面
             $("#prod-query-list-body").on('click', ".editBtn", function () {
                 nowEditId = $(this).attr('data-id');
+                $('#edit-images').empty();
                 console.log(nowEditId);
                 //edit_change_image = false;
                 $.ajax({
@@ -375,14 +412,12 @@
                         old_imgURL = data.imgURL;
                         old_quantity = data.quantity;
                         //toggle 顯示
-                        if (data.status == "1")
-                        {
+                        if (data.status == "1") {
                             //$('#toggle').attr("checked");
                             $("#staon").show();
                             $("#staoff").hide();
                         }
-                        else
-                        {
+                        else {
                             //$('.edit-toggle').removeAttr("checked");
                             $("#staon").hide();
                             $("#staoff").show();
@@ -402,22 +437,30 @@
                         });
 
                         //let latest = data.detailList.filter(x => x.isLatest == 1)[0];
-
                         //關於URL轉換方法
-                        if (data.imgURL != "/images/no.jpg" || data.imgURL.trim() != "") {
-                            data.imgURL.split(";").forEach((filename) => {
-                                if (filename.trim() == "") {
-                                    return;
-                                }
-                                let template = `
-                                <a class="btn btn-primary delete-insert-image-tag">${filename}<span class="badge badge-pill badge-light delete-edit-image" data-id="${filename}"><i class="fa fa-times "></i></span></a>
-                                `
-                                $('#edit-images').append(template);
-                            });
-                            edit_images = data.imgURL.split(";");
-                        } else {
-                            edit_images = [];
-                        } 
+                        //if (data.imgURL != "no.jpg") {
+                        //    let template = `
+                        //    <a class="btn btn-primary delete-insert-image-tag">${data.imgURL}<span class="badge badge-pill badge-light delete-edit-image" data-id="${data.imgURL}"><i class="fa fa-times "></i></span></a>
+                        //    `
+                        //    $('#edit-images').append(template);
+                        //}
+                        //else {
+                        //    let template = `
+                        //    <a class="btn btn-primary delete-insert-image-tag">there is no picture !<span class="badge badge-pill badge-light delete-edit-image" data-id="${data.imgURL}"><i class="fa fa-times "></i></span></a>
+                        //    `
+                        //    $('#edit-images').append(template);
+                        //}
+                        data.imgURL.split(";").forEach((filename) => {
+                            if (filename.trim() == "") {
+                                return;
+                            }
+                            let template = `
+                            <a class="btn btn-primary delete-insert-image-tag">${filename}<span class="badge badge-pill badge-light delete-edit-image" data-id="${filename}"><i class="fa fa-times "></i></span></a>
+                            `
+                            $('#edit-images').append(template);
+                        });
+                        edit_images = data.imgURL.split(";");
+                   
 
                         //$('#edit-history > tbody').empty();
                         //data.detailList.forEach(v => {
@@ -524,6 +567,7 @@
                         toastr.success("完成");
                         $('#insertModal input, #insertModal select, #insertModal textarea').val('');
                         updateList();
+                        window.setTimeout(function () { window.location.reload() }, 1000);
                     },
                     error: (data) => {
                         toastr.error('錯誤', data2);
@@ -543,10 +587,11 @@
                     success: function (data) {
                        toastr.success('刪除完成');
                         updateList();
+                        window.setTimeout(function () { window.location.reload() }, 1000);
                     },
                     error: function (data) {
                        toastr.error('錯誤', data);
-                        updateList();
+                        window.setTimeout(function () { window.location.reload() }, 500);
                     }
                 });
             });
@@ -558,6 +603,9 @@
                     return;
                 }
                 if ($('#edit-description').val() != old_description || $('#edit-name').val() != old_name || $('#edit-categoryId').val() != old_categoryId || $('#edit-price') != old_price || $('#edit-status') != old_status || $('#edit-quantity') != old_quantity) {
+                    //$(".delete-insert-image-tag").val().forEach((d) => {
+                    //    console.log(d);
+                    //})
                     $.ajax({
                         url: '@Url.Action("UpdateProd", "Products")',
                         method: 'POST',
@@ -569,13 +617,14 @@
                             price: $('#edit-price').val(),
                             publishDate: $('#edit-publishDate').val(),
                             status: $('#edit-status').val(),
-                            ImgUrl: " ",
+                            imgUrl: edit_images.length > 0 ? edit_images.join(";") : " ",
                             quantity: $('#edit-quantity').val(),
                         },
                         success: (data) => {
+                            //edit_images.push(data.imgURL);
                             toastr.success('編輯完成');
                             updateList();
-
+                            window.setTimeout(function () { window.location.reload() }, 1000);
                         },
                         error: (data) => {
                             toastr.error('錯誤', data);
@@ -617,6 +666,112 @@
                     }
                 });
             });
+            $("#edit-upload").on('change', function () {
+            //$("#edit-upload").on('change', function () {
+                var fd = new FormData();
+                for (let i = 0; i < $('#edit-upload')[0].files.length; i++) {
+                    fd.append('upload', $('#edit-upload')[0].files[i])
+                }
+                $.ajax({
+                    url: '@Url.Action("UploadFiles", "Products")',
+                    type: 'POST',
+                    data: fd,
+                    contentType: false,
+                    processData: false,
+                    success: (data) => {
+                        if (data.isOk) {
+                            data.fileNames.forEach((filename) => {
+                                filename = filename.split("\\")[filename.split("\\").length - 1];
+                                let template = `
+                                    <a id="${filename}" class="btn btn-primary delete-insert-image-tag">${filename}<span class="badge badge-pill badge-light delete-insert-image" data-id="${filename}"><i class="fa fa-times "></i></span></a>
+                                 `
+                                edit_images.push(filename);
+                                $('#edit-images').append(template);
+                            });
+                        }
+                        $("#edit-upload").val(null);
+                    },
+                    error: (data) => {
+                        toastr.error('錯誤', data);
+                    }
+                });
+            });
+
+
+            //編輯頁面的檔案上傳 --沒用
+            @*$("#edit-file-upload").on('change', function () {
+                var fd = new FormData();
+                var isUpload = false;
+                for (let i = 0; i < $('#edit-file-upload')[0].files.length; i++) {
+                    let uploadfile = $('#edit-file-upload')[0].files[i];
+                    fd.append('upload', uploadfile);
+                    isUpload = true;
+                }
+
+                if (isUpload) {
+                    $.ajax({
+                        url: '@Url.Action("UploadFiles", "Products")',
+                        type: 'POST',
+                        data: fd,
+                        contentType: false,
+                        processData: false,
+                        success: (data) => {
+
+                            if (data.isOk) {
+                                data.fileNames.forEach((filename) => {
+                                    let template = `
+                                <a class="btn btn-primary delete-edit-image-tag">${filename}<span class="badge badge-pill badge-light delete-edit-image" data-id="${filename}" onclick="removeEditFile('${filename}')"><i class="fa fa-times "></i></span></a>   
+                                `;
+                                    editFile.push(filename);
+                                    $('#edit-files').append(template);
+                                });
+                            }
+
+                            $("#edit-file-upload").val(null);
+                            toastr.success('上傳成功');
+                        },
+                        error: (data) => {
+                            toastr.error('上傳錯誤');
+                        }
+                    });
+                }
+
+            });*@
+
+            //新增頁面的檔案移除
+            function removeInsertFile(data) {
+                $("#insert-images").empty();
+                let temp = insertFile;
+                insertFile = [];
+                temp.forEach((element) => {
+                    //var fileName = element.split("\\")[2];
+                    if (!data.includes(element)) {
+                        let template = `
+                        <a class="btn btn-primary delete-insert-image-tag">${element}<span class="badge badge-pill badge-light delete-insert-image" data-id="${element}" onclick="removeInsertFile('${element}')"><i class="fa fa-times "></i></span></a>
+                    `
+                        $('#insert-images').append(template);
+                        insertFile.push(element);
+                    }
+
+                })
+            }
+            //編輯頁面的檔案移除
+            function removeEditFile(data) {
+                debugger
+                $("#edit-images").empty();
+                let temp = editFile;
+                editFile = [];
+                temp.forEach((element) => {
+                    //var fileName = element.split("\\")[2];
+                    if (!data.includes(element)) {
+                        let template = `
+                        <a class="btn btn-primary delete-edit-image-tag">${element}<span class="badge badge-pill badge-light delete-edit-image" data-id="${element}" onclick="removeEditFile('${element}')"><i class="fa fa-times "></i></span></a>
+                    `
+                        $('#edit-images').append(template);
+                        editFile.push(element);
+                    }
+                })
+            }
 
             //首次載入列表
             updateList();

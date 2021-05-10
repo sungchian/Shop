@@ -235,6 +235,7 @@
         @*@Html.PagedListPager((IPagedList)Model, x => Url.Action("Index", new { pageIndex = x }))*@
         @*@Html.PagedListPager((IPagedList)Model, x => Url.Action("Index", new { page }))*@
     </div>
+    <div><h2>dasddas</h2></div>
 </div>
 
 <!-- Search Modal -->
@@ -253,14 +254,7 @@
             <div class="modal-body">
                 <form>
                     <div class="form-group">
-                        @*@Html.DropDownList("search-category", (IEnumerable<SelectListItem>)ViewBag.Category, new { @class = "form-control" })*@
-                        <select id="tttt" class="form-control"></select>
-                    </div>
-                    <h2>dadsadasdasds</h2>
-                    <div class="form-group">
-                        <select id="tttt" class="form-control"></select>
-                    </div>
-                    <div class="form-group"><h2>456465465</h2>
+                        @Html.DropDownList("search-category", (IEnumerable<SelectListItem>)ViewBag.Category, new { @class = "form-control" })
                     </div>
                     <div class="input-group input-group-merge">
                         <input id="searchCategoryBtn" class="form-control" type="search" placeholder="Search" style="width: 300px;" />

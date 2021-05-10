@@ -13,21 +13,63 @@ using System.IO;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Newtonsoft.Json;
 using Microsoft.AspNetCore.Authorization;
-
+using X.PagedList;
 namespace Shopee1.Controllers
 {
     public class ProductsController : Controller
     {
-        public IActionResult Index()
+        public IActionResult Index(int page = 1, int sizePage = 8)
         {
-            return View();
+
+            List<ProdMaintain> parts = new List<ProdMaintain>();
+
+            parts = new ProductsController().getAllProduct();
+
+            return View(parts.ToPagedList(page, sizePage));
         }
 
-        public async Task<List<ProdMaintain>> getAllProduct()
+        public List<ProdMaintain> getAllProduct()
         {
             string connectionString = "Server=.;Database=Shopee;Trusted_Connection=true;";
 
             var sqlString = @"SELECT * FROM dbo.Products";
+
+            var ProductList = new List<ProdMaintain>();
+
+            using (SqlConnection connect = new SqlConnection(connectionString))
+            {
+                using (SqlCommand cmd = new SqlCommand(sqlString, connect))
+                {
+                    connect.Open();
+
+                    SqlDataReader test = cmd.ExecuteReader();
+
+                    while (test.Read())
+                    {
+                        var prod = new ProdMaintain();
+                        //dataReader ["欄位名稱"].ToString()    資料庫的資料
+                        prod.Id = Convert.ToInt32(test["Id"]);
+                        prod.Name = Convert.ToString(test["Name"]);
+                        prod.Description = Convert.ToString(test["Description"]);
+                        prod.CategoryId = Convert.ToString(test["CategoryId"]);
+                        prod.Price = Convert.ToString(test["Price"]);
+                        prod.Quantity = Convert.ToString(test["Quantity"]);
+                        prod.Status = Convert.ToString(test["Status"]);
+                        prod.ImgURL = Convert.ToString(test["ImgURL"]);
+                        ProductList.Add(prod);
+
+                    }
+
+                    return ProductList;
+                }
+            }
+        }
+
+        public List<ProdMaintain> getActiveProduct()
+        {
+            string connectionString = "Server=.;Database=Shopee;Trusted_Connection=true;";
+
+            var sqlString = @"SELECT * FROM dbo.Products WHERE Status = 1";
 
             var ProductList = new List<ProdMaintain>();
 
@@ -199,10 +241,10 @@ namespace Shopee1.Controllers
             try
             {
                 string connectionString = "Server=.;Database=Shopee;Trusted_Connection=true;";
-                if (String.IsNullOrEmpty(imgUrl))
-                {
-                    imgUrl = "no.jpg";
-                }
+                //if (String.IsNullOrEmpty(imgUrl))
+                //{
+                //    imgUrl = "no.jpg";
+                //}
                 //string connectionString = "Server=skmh.database.windows.net,1433;Initial Catalog=SKMH-LINE-BOT-DB;Persist Security Info=False;User ID=skmh_admin;Password=1qaz@wsx;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;";
                 var sqlStr = "UPDATE Products SET Name = @name, Description = @description, CategoryId = @categoryId, Price = @price, PublishDate = @publishDate, Status = @status, ImgURL = @imgURL, Quantity = @quantity WHERE Id = @Id ";
                 using (SqlConnection connect = new SqlConnection(connectionString))
@@ -218,7 +260,7 @@ namespace Shopee1.Controllers
                         cmd.Parameters.Add("@price", SqlDbType.NVarChar).Value = string.IsNullOrEmpty(price) ? DBNull.Value : (object)price;
                         cmd.Parameters.Add("@publishDate", SqlDbType.DateTime).Value = string.IsNullOrEmpty(publishDate) ? DBNull.Value : (object)publishDate;
                         cmd.Parameters.Add("@status", SqlDbType.NVarChar).Value = string.IsNullOrEmpty(status) ? DBNull.Value : (object)status;
-                        cmd.Parameters.Add("@ImgURL", SqlDbType.NVarChar).Value = string.IsNullOrEmpty(imgUrl) ? DBNull.Value : (object)imgUrl;
+                        cmd.Parameters.Add("@imgURL", SqlDbType.NVarChar).Value = string.IsNullOrEmpty(imgUrl) ? DBNull.Value : (object)imgUrl;
                         cmd.Parameters.Add("@quantity", SqlDbType.NVarChar).Value = string.IsNullOrEmpty(quantity) ? DBNull.Value : (object)quantity;
                         int row = cmd.ExecuteNonQuery();
                         if (row > 0)
@@ -259,13 +301,58 @@ namespace Shopee1.Controllers
                         //var imagename = DateTime.Now.ToString("yyyyMMddhhmmss") + ram.ToString() + "." + formFile.FileName.Split(".")[formFile.FileName.Split(".").Length - 1];
                         var imagename = "rpt_Img" + ((DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss").Substring(0, 19).Replace(" ", "_")).Replace("/", "")).Replace(":", "") + "_" + ram.ToString() + ".jpg";
 
-                        var filePath = @"C:\Users\A015953.SKHCORP\source\repos\Shopee1\Shopee1\wwwroot\images\" + imagename;
+                        var filePath = @"C:\Users\A015953.SKHCORP\source\repos\Store\Store\wwwroot\images\" + imagename;
+
+                        var filePathCopy = @"C:\Users\A015953.SKHCORP\source\repos\Store\Store\wwwroot\orignImages\" + imagename;
 
                         using (var stream = System.IO.File.Create(filePath))
                         {
                             await formFile.CopyToAsync(stream);
                         }
+                        System.IO.File.Copy(filePath, filePathCopy, false);
                         fileNameList.Add(filePath);
+                        //fileNameList.Add(filePathCopy);
+                    }
+                }
+                return Ok(new { IsOk = true, fileNames = fileNameList });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new { IsOk = false, ErrorText = ex.ToString() });
+            }
+        }
+        //Update Image 上傳
+        public async Task<IActionResult> UploadFiles(List<IFormFile> upload)
+        {
+            if (upload == null || upload.Count == 0)
+            {
+                return Ok(new { IsOk = false, ErrorText = "請選擇圖片!" });
+            }
+            try
+            {
+                var fileNameList = new List<string>();
+                foreach (var formFile in upload)
+                {
+                    if (formFile.Length > 0)
+                    {
+                        Random crandom = new Random();
+
+                        int ram = crandom.Next(10000);
+
+                        //var imagename = DateTime.Now.ToString("yyyyMMddhhmmss") + ram.ToString() + "." + formFile.FileName.Split(".")[formFile.FileName.Split(".").Length - 1];
+                        var imagename = "UPD_" + ((DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss").Substring(0, 19).Replace(" ", "_")).Replace("/", "")).Replace(":", "") + "_" + ram.ToString() + ".jpg";
+
+                        var filePath = @"C:\Users\A015953.SKHCORP\source\repos\Store\Store\wwwroot\images\" + imagename;
+
+                        var filePathCopy = @"C:\Users\A015953.SKHCORP\source\repos\Store\Store\wwwroot\updateImages\" + imagename;
+
+                        using (var stream = System.IO.File.Create(filePath))
+                        {
+                            await formFile.CopyToAsync(stream);
+                        }
+                        System.IO.File.Copy(filePath, filePathCopy, false);
+                        fileNameList.Add(filePath);
+                        //fileNameList.Add(filePathCopy);
                     }
                 }
                 return Ok(new { IsOk = true, fileNames = fileNameList });

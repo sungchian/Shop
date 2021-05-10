@@ -20,14 +20,17 @@ namespace Shopee1.Controllers
 {
     public class DisplayController : Controller
     {
-        public IActionResult Index(int pageIndex = 1, int sizePage = 8)
+        public IActionResult Index(int page = 1, int sizePage = 8)
         {
+
             List<ProdMaintain> parts = new List<ProdMaintain>();
+
+            parts = new ProductsController().getActiveProduct();
 
             ViewBag.Category = getAllCategory().Result
                 .Select(x => new SelectListItem { Text = x.CategoryName, Value = x.CategoryId.ToString() })
                 .Prepend(new SelectListItem { Text = "請選擇", Value = "-9999" });
-            return View();  //(parts.ToPagedList(page, sizePage))
+            return View((parts.ToPagedList(page, sizePage)));  //(parts.ToPagedList(page, sizePage))
         }
 
         public async Task<List<MCategory>> getAllCategory()
