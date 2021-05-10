@@ -329,6 +329,7 @@
             //        $('#setlb_InEnable_' + idNum).show();
             //    }
             //}
+
             //載入列表
             function updateList() {
                 //$('#prod-query-list-body').empty();
@@ -450,14 +451,16 @@
                         //    `
                         //    $('#edit-images').append(template);
                         //}
+                        nowId = 0;
                         data.imgURL.split(";").forEach((filename) => {
                             if (filename.trim() == "") {
                                 return;
                             }
                             let template = `
-                            <a class="btn btn-primary delete-insert-image-tag">${filename}<span class="badge badge-pill badge-light delete-edit-image" data-id="${filename}"><i class="fa fa-times "></i></span></a>
+                            <a id = "${nowId}" class="btn btn-primary delete-insert-image-tag">${filename}<span class="badge badge-pill badge-light delete-edit-image" data-id="${filename}"><i class="fa fa-times "></i></span></a>
                             `
                             $('#edit-images').append(template);
+                            nowId++;
                         });
                         edit_images = data.imgURL.split(";");
                    
@@ -498,6 +501,29 @@
                         updateList();
                     }
                 });
+            });
+
+            $("#edit-images").on("click", ".delete-insert-image-tag", function () {
+                var nowId = $(this).attr("id");
+                $("#edit-images").empty();
+                let temp = edit_images;
+                edit_images.splice(nowId, 1);
+                console.log(temp);
+                edit_images = [];
+                countId = 0;
+                temp.forEach((element) => {
+                    //var fileName = element.split("\\")[2];
+                    if (!$("a.delete-insert-image").text().includes(element)) {
+                        console.log(element);
+                        let template = `
+                        <a id="${nowId}" class="btn btn-primary delete-insert-image-tag">${element}<span class="badge badge-pill badge-light delete-edit-image" data-id="${element}"><i class="fa fa-times "></i></span></a>
+                    `
+                        $('#edit-images').append(template);
+                        edit_images.push(element);
+                        countId++;
+                    }
+                })
+                console.log("asdadsadasd");
             });
 
             //新增功能
@@ -697,46 +723,7 @@
                 });
             });
 
-
-            //編輯頁面的檔案上傳 --沒用
-            @*$("#edit-file-upload").on('change', function () {
-                var fd = new FormData();
-                var isUpload = false;
-                for (let i = 0; i < $('#edit-file-upload')[0].files.length; i++) {
-                    let uploadfile = $('#edit-file-upload')[0].files[i];
-                    fd.append('upload', uploadfile);
-                    isUpload = true;
-                }
-
-                if (isUpload) {
-                    $.ajax({
-                        url: '@Url.Action("UploadFiles", "Products")',
-                        type: 'POST',
-                        data: fd,
-                        contentType: false,
-                        processData: false,
-                        success: (data) => {
-
-                            if (data.isOk) {
-                                data.fileNames.forEach((filename) => {
-                                    let template = `
-                                <a class="btn btn-primary delete-edit-image-tag">${filename}<span class="badge badge-pill badge-light delete-edit-image" data-id="${filename}" onclick="removeEditFile('${filename}')"><i class="fa fa-times "></i></span></a>   
-                                `;
-                                    editFile.push(filename);
-                                    $('#edit-files').append(template);
-                                });
-                            }
-
-                            $("#edit-file-upload").val(null);
-                            toastr.success('上傳成功');
-                        },
-                        error: (data) => {
-                            toastr.error('上傳錯誤');
-                        }
-                    });
-                }
-
-            });*@
+        
 
             //新增頁面的檔案移除
             function removeInsertFile(data) {
@@ -747,7 +734,7 @@
                     //var fileName = element.split("\\")[2];
                     if (!data.includes(element)) {
                         let template = `
-                        <a class="btn btn-primary delete-insert-image-tag">${element}<span class="badge badge-pill badge-light delete-insert-image" data-id="${element}" onclick="removeInsertFile('${element}')"><i class="fa fa-times "></i></span></a>
+                        <a class="btn btn-primary delete-insert-image-tag">${element}<span class="badge badge-pill badge-light delete-insert-image" data-id="${element}"><i class="fa fa-times "></i></span></a>
                     `
                         $('#insert-images').append(template);
                         insertFile.push(element);
@@ -759,16 +746,16 @@
             function removeEditFile(data) {
                 debugger
                 $("#edit-images").empty();
-                let temp = editFile;
-                editFile = [];
+                let temp = edit_images;
+                edit_images = [];
                 temp.forEach((element) => {
                     //var fileName = element.split("\\")[2];
                     if (!data.includes(element)) {
                         let template = `
-                        <a class="btn btn-primary delete-edit-image-tag">${element}<span class="badge badge-pill badge-light delete-edit-image" data-id="${element}" onclick="removeEditFile('${element}')"><i class="fa fa-times "></i></span></a>
+                        <a class="btn btn-primary delete-edit-image-tag">${element}<span class="badge badge-pill badge-light delete-edit-image" data-id="${element}"><i class="fa fa-times "></i></span></a>
                     `
                         $('#edit-images').append(template);
-                        editFile.push(element);
+                        edit_images.push(element);
                     }
                 })
             }
