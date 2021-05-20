@@ -599,6 +599,8 @@
                 }
                 $.ajax({
                     url: '@Url.Action("InsertProd", "Products")',
+                    contentType: "application/x-www-form-urlencoded",
+                    headers: { "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val() },
                     method: 'POST',
                     data: {
                         name: $('#insert-name').val(),
@@ -618,7 +620,7 @@
                         window.setTimeout(function () { window.location.reload() }, 1000);
                     },
                     error: (data) => {
-                        toastr.error('錯誤', data2);
+                        toastr.error('錯誤', data);
                         console.log(data);
                     }
                 })
@@ -656,6 +658,8 @@
                     //})
                     $.ajax({
                         url: '@Url.Action("UpdateProd", "Products")',
+                        contentType: "application/x-www-form-urlencoded",
+                        headers: { "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val() },
                         method: 'POST',
                         data: {
                             Id: nowEditId,
@@ -690,6 +694,8 @@
                 }
                 $.ajax({
                     url: '@Url.Action("UploadImages", "Products")',
+                    contentType: "application/x-www-form-urlencoded",
+                    headers: { "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val() },
                     type: 'POST',
                     data: fd,
                     contentType: false,
@@ -724,6 +730,8 @@
                 }
                 $.ajax({
                     url: '@Url.Action("UploadFiles", "Products")',
+                    contentType: "application/x-www-form-urlencoded",
+                    headers: { "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val() },
                     type: 'POST',
                     data: fd,
                     contentType: false,

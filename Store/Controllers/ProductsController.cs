@@ -103,6 +103,7 @@ namespace Shopee1.Controllers
         }
 
         //找尋by id
+        //[AllowAnonymous]        
         public async Task<IActionResult> QueryProdById(int id)
         {
             string connectionString = "Server=.;Database=Shopee;Trusted_Connection=true;";
@@ -177,6 +178,8 @@ namespace Shopee1.Controllers
         }
 
         //新增功能
+        //[Authorize]
+        [HttpPost]
         public async Task<string> InsertProd(ProdMaintain prod)
         {
             try
@@ -281,6 +284,8 @@ namespace Shopee1.Controllers
             }
         }
         //上傳檔案
+        //[Authorize]
+        [HttpPost]
         public async Task<IActionResult> UploadImages(List<IFormFile> upload)
         {
             if (upload == null || upload.Count == 0)
@@ -322,6 +327,8 @@ namespace Shopee1.Controllers
             }
         }
         //Update Image 上傳
+        //[Authorize]
+        [HttpPost]
         public async Task<IActionResult> UploadFiles(List<IFormFile> upload)
         {
             if (upload == null || upload.Count == 0)

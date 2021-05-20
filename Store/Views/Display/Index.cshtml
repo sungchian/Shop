@@ -187,6 +187,31 @@
         opacity: 0;
     }
 
+    .overlay {
+        display: block;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 45vh;
+        background-color: rgba(43,52,69,0.1);
+        z-index: 1;
+        opacity: 0;
+    }
+        .overlay:hover {
+            opacity: 1;
+        }
+
+    .btn-wishlist {
+        position: absolute;
+        right: 2vw;
+        top: 4vh;
+        border: solid 2px red;
+        border-radius: 100%;
+        color: red;
+        height: 5.2vh;
+        background-color: white;
+    }
     .checkout {
         border: solid 1px mediumpurple;
         border-radius: 20px;
@@ -324,7 +349,10 @@
                                    <div class="col-lg-3 col-md-4 col-sm-6 card-frame">
                                         <div class="card">
                                         <div class="imgframe">
-                                            <img id="prod-img${d.id}" class="prod-img" src="${d.imgURL}">
+                                        <a class="overlay" herf="#">
+                                                <button id="like${d.id}" class="btn btn-wishlist btn-sm"><i class="fa fa-heart"></i></button>
+                                        </a>
+                                        <img id="prod-img${d.id}" class="prod-img" src="${d.imgURL}">
                                         </div>
                                         <div class="rate">
                                             <i class="fa fa-star star1"></i>
